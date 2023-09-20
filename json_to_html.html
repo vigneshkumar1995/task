@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title>Document</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      .convert-nox {
+         display: block;
+      }
+      .wrapper {
+         max-width: 800px;
+         margin: 20px auto;
+      }
+      .textarea-design {
+         width: 100%;
+         height:180px;
+         border: 1px solid #000;
+         padding: 10px;
+      }
+      .gen-btn-row {
+         margin: 15px 0px;
+         text-align: right;
+      }
+      .gen-btn {
+         border: 1px solid #ef66fb;
+         background: #ef66fb;
+         padding: 10px 20px;
+         font-size: 14px;
+         cursor: pointer;
+         color: #000;
+      }
+      .textarea-lable {
+         display: inline-block;
+         background: #dae4fc;
+         border: 1px solid #000;
+         padding: 10px;
+         border-bottom: 0px;
+      }
+      #jsonError{
+         text-align: center;
+         color: red;
+         margin-bottom: 10px;
+         display: block;
+      }
+      #showdata {
+         margin-top: 20px;
+      }
+   </style>
+</head>
+<body>
+   <div class="wrapper">
+      <span id="jsonError"></span>
+      <div class="convert-nox">
+         <div class="textarea-row">
+            <label class="textarea-lable" for="jsonTextarea">input JSON</label>
+            <textarea class="textarea-design" id="jsonTextarea" rows="10" cols="50"></textarea>
+         </div>
+         <div class="gen-btn-row">
+            <button type="button" class="gen-btn" onclick="htmlJson()">Generate</button>
+         </div>
+         <div class="textarea-row">
+            <label class="textarea-lable" for="outputTextarea">Output HTML</label>
+            <textarea class="textarea-design" id="outputTextarea" rows="10" cols="50"></textarea>
+         </div>
+      </div>
+      <section id="showdata"></section>
+
+   </div>
+   <script type="text/javascript">
+      function htmlJson() {
+         let html = "";
+         let idArray = [];
+         let dupFound = false;
+         let allElement = [];
+         const outputText = document.getElementById('outputTextarea');
+         var jsonError = document.getElementById('jsonError');
+         try {
+            const jsonTextarea = document.getElementById("jsonTextarea");
+            const jsonText = jsonTextarea.value;
+            const jsonFile = JSON.parse(jsonText);
+
+            jsonFile.forEach((item, index) => {
+
+               dupFound =idArray.includes(item.id);
+
+               if(dupFound == true)
+               {
+                  jsonError.innerHTML=`Error: ID - ${item.id} duplicated `;
+                  outputText.innerHTML="";
+                  return false
+               }
+               else {
+                  idArray.push(item.id);
+
+                  let divElement = document.createElement("div");
+                  divElement.classList.add("root");
+                  divElement.setAttribute("data-id", item.id);
+
+                  for (const key in item) {
+                     const value = item[key];
+                     const className = key.toLowerCase();
+
+                        if(className!='id'){
+                           if(className=="action"){
+
+                              let mainSpanElement = document.createElement("span");
+                              let spanElement = document.createElement("span");
+                              mainSpanElement.classList.add(`additional_details`);
+                              spanElement.classList.add(`type`);
+
+                              spanElement.innerHTML = `${value}`;
+                              mainSpanElement.appendChild(spanElement);
+                              divElement.appendChild(mainSpanElement);
+
+                           }
+                           else {
+                              let spanElement = document.createElement("span");
+                              spanElement.classList.add(`${className}`);
+                              spanElement.innerHTML = `${value}`;
+                              divElement.appendChild(spanElement);
+                           }
+
+                        }
+                  }
+
+                  allElement.push(divElement);
+                  jsonError.innerHTML="";
+               }
+
+            });
+
+         } catch (error) {
+            const errorContent = `Error: ${error.message}`;
+
+            jsonError.innerHTML=errorContent;
+
+         }
+
+       // const showdata = document.getElementById('showdata');
+
+
+        if(dupFound == false) {
+        //showdata.innerHTML=divElement;
+         outputText.innerHTML=allElement.map(element => element.outerHTML).join("\n");
+         }
+
+      }
+   </script>
+</body>
+</html>

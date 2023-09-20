@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title>Document</title>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+.wrapper {
+   max-width: 800px;
+   margin: 0 auto;
+}
+.content-table {
+   width: 100%;
+  border-collapse: collapse;
+  margin: 25px 0;
+  font-size: 0.9em;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.content-table thead tr {
+  background-color: #009879;
+  color: #ffffff;
+  text-align: left;
+  font-weight: bold;
+}
+
+.content-table th,
+.content-table td {
+  padding: 15px 15px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+}
+.filter-box {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin-top: 20px;
+   margin-bottom: 20px;
+}
+.filter-box select{
+   padding: 10px;
+   font-size: 16px;
+   margin-left: 10px;
+}
+.filter-box button{
+   padding: 10px;
+   font-size: 16px;
+   background:#009879;
+   border: 1px solid #009879;
+   color: #fff;
+   margin-left: 10px;
+   cursor: pointer;
+}
+#error-msg {
+   text-align: center;
+   color: red;
+   margin-bottom: 10px;
+   display: block;
+}
+
+   </style>
+</head>
+<body>
+   <div class="wrapper">
+
+      <span id="error-msg"></span>
+      <div class="filter-box">
+         <label for="status">Status:</label>
+         <select id="status">
+               <option value="">Select Status</option>
+               <option value="active">Active</option>
+               <option value="retired">Retired</option>
+               <option value="unknown">Unknown</option>
+               <option value="destroyed">Destroyed</option>
+         </select>
+         <button id="load" type="button">Load</button>
+      </div>
+
+     <table id="" class="content-table">
+         <thead>
+            <th>Capsule ID</th>
+            <th>No of Missions</th>
+            <th>Details</th>
+         </thead>
+         <tbody id="dataTable">
+
+         </tbody>
+     </table>
+   </div>
+   <script type="text/javascript">
+
+   const dataTable = document.getElementById('dataTable');
+   const statusData = document.getElementById('status');
+   const loadBtn = document.getElementById('load');
+   const errorMsg = document.getElementById('error-msg');
+
+      fetch('./sample.json').then(response => response.json()).then(data => {
+         populateTable(data.countries)
+         loadBtn.addEventListener('click', () => {
+
+            const selectData = statusData.value;
+
+            if(selectData.length > 0) {
+
+               const filteredData = data.countries.filter(val => val.status == selectData);
+               populateTable(filteredData);
+
+            }else {
+               errorMsg.innerHTML = "Please select Status"
+            }
+
+         });
+
+      });
+
+      function populateTable(jsonData) {
+         dataTable.innerHTML = '';
+         if(jsonData.length > 0) {
+            jsonData.forEach(val => {
+               const row = document.createElement('tr');
+               row.innerHTML = `
+                  <td>${val.capsule_id}</td>
+                  <td>${val.missions}</td>
+                  <td>${val.details}</td>
+               `;
+               dataTable.appendChild(row);
+            });
+         }
+         else {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                  <td colspan="3">No data found</td>
+               `;
+            dataTable.appendChild(row);
+         }
+      }
+   </script>
+</body>
+</html>
