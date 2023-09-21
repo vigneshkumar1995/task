@@ -58,7 +58,7 @@
             <textarea class="textarea-design" id="jsonTextarea" rows="10" cols="50"></textarea>
          </div>
          <div class="gen-btn-row">
-            <button type="button" class="gen-btn" onclick="htmlJson()">Generate</button>
+            <button type="button" class="gen-btn" onclick="generateFunction()">Generate</button>
          </div>
          <div class="textarea-row">
             <label class="textarea-lable" for="outputTextarea">Output HTML</label>
@@ -69,7 +69,49 @@
 
    </div>
    <script type="text/javascript">
-      function htmlJson() {
+
+      function jsonToHtml(item) {
+         let allElement = [];
+         let divElement = document.createElement("div");
+         divElement.classList.add("root");
+         if(item.id){
+            divElement.setAttribute("data-id", item.id);
+         }
+
+         for (const key in item) {
+            const value = item[key];
+            const className = key.toLowerCase();
+
+               if(className!='id'){
+
+                  let spanElement = document.createElement("span");
+                  spanElement.classList.add(`${className}`);
+
+                     if (typeof value === "object") {
+
+                        spanElement.appendChild(jsonToHtml(value));
+                        console.log(spanElement);
+
+                     }else{
+
+                        spanElement.textContent = `${value}`;
+
+                     }
+
+                     divElement.appendChild(spanElement);
+
+               }
+
+         }
+         //allElement.push(divElement);
+         console.log(divElement);
+
+         return divElement;
+
+      }
+
+
+      function generateFunction() {
          let html = "";
          let idArray = [];
          let dupFound = false;
@@ -93,39 +135,8 @@
                }
                else {
                   idArray.push(item.id);
-
-                  let divElement = document.createElement("div");
-                  divElement.classList.add("root");
-                  divElement.setAttribute("data-id", item.id);
-
-                  for (const key in item) {
-                     const value = item[key];
-                     const className = key.toLowerCase();
-
-                        if(className!='id'){
-                           if(className=="action"){
-
-                              let mainSpanElement = document.createElement("span");
-                              let spanElement = document.createElement("span");
-                              mainSpanElement.classList.add(`additional_details`);
-                              spanElement.classList.add(`type`);
-
-                              spanElement.innerHTML = `${value}`;
-                              mainSpanElement.appendChild(spanElement);
-                              divElement.appendChild(mainSpanElement);
-
-                           }
-                           else {
-                              let spanElement = document.createElement("span");
-                              spanElement.classList.add(`${className}`);
-                              spanElement.innerHTML = `${value}`;
-                              divElement.appendChild(spanElement);
-                           }
-
-                        }
-                  }
-
-                  allElement.push(divElement);
+                  let Html = jsonToHtml(item);
+                  allElement.push(Html);
                   jsonError.innerHTML="";
                }
 
